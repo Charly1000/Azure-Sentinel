@@ -35,3 +35,4 @@ jobs:
             -WorkspaceName ${{ secrets.AZURE_WORKSPACE_NAME }}
         azPSVersion: latest
         enable-AzPSSession: true
+

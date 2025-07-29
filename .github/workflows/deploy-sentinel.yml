@@ -1,23 +1,31 @@
-name: Deploy Sentinel Rules
+name: Deploy Sentinel Content
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
+    - name: Checkout Repo
+      uses: actions/checkout@v3
 
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Setup PowerShell
+      uses: actions/setup-powershell@v2
 
-      - name: Deploy Analytic Rules
-        run: |
-          az deployment group create \
-            --resource-group rg-sentinel \
-            --template-file Deploy/AnalyticsRules/deploy.json \
-            --parameters Deploy/AnalyticsRules/parameters.json
+    - name: Login Azure CLI
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Run Sentinel Deployment Script
+      shell: pwsh
+      run: |
+        ./scripts/sen.ps1 `
+          -SubscriptionId ${{ secrets.AZURE_SUBSCRIPTION_ID }} `
+          -ResourceGroupName ${{ secrets.AZURE_RESOURCE_GROUP }} `
+          -WorkspaceName ${{ secrets.AZURE_WORKSPACE_NAME }} `
+          -RepoPath $PWD

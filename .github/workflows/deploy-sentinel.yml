@@ -1,0 +1,33 @@
+# .github/workflows/deploy-sentinel.yml
+name: Deploy Sentinel Content (Non-breaking)
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Sentinel Deploy (non-breaking)
+        uses: azure/powershell@v2
+        continue-on-error: true
+        with:
+          azPSVersion: 'latest'
+          inlineScript: |
+            Set-Location "${{ github.workspace }}"
+            ./.script/deploy.ps1 `
+              -ConfigurationPath "${{ github.workspace }}/sentinel-deployment.config" `
+              -RepositoryPath "${{ github.workspace }}" `
+              -SubscriptionId "${{ secrets.AZURE_SUBSCRIPTION_ID }}" `
+              -ResourceGroupName "${{ secrets.AZURE_RESOURCE_GROUP }}" `
+              -WorkspaceName "${{ secrets.AZURE_WORKSPACE_NAME }}"
+          enable-AzPSSession: true

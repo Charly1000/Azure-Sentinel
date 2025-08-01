@@ -1,5 +1,6 @@
-# .github/workflows/deploy-sentinel.yml
-name: Deploy Sentinel Content (Non-breaking)
+# .github/workflows/sentinel-deploy.yml
+
+name: Custom Sentinel Deployment
 
 on:
   push:
@@ -9,7 +10,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Azure Login
@@ -17,17 +18,29 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Sentinel Deploy (non-breaking)
+      - name: Run Sentinel Deployment
         uses: azure/powershell@v2
         continue-on-error: true
         with:
-          azPSVersion: 'latest'
           inlineScript: |
             Set-Location "${{ github.workspace }}"
-            ./.script/deploy.ps1 `
-              -ConfigurationPath "${{ github.workspace }}/sentinel-deployment.config" `
-              -RepositoryPath "${{ github.workspace }}" `
-              -SubscriptionId "${{ secrets.AZURE_SUBSCRIPTION_ID }}" `
-              -ResourceGroupName "${{ secrets.AZURE_RESOURCE_GROUP }}" `
-              -WorkspaceName "${{ secrets.AZURE_WORKSPACE_NAME }}"
+
+            $config = "${{ github.workspace }}/sentinel-deployment.config"
+            $repo   = "${{ github.workspace }}"
+            $sub   = "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+            $rg    = "${{ secrets.AZURE_RESOURCE_GROUP }}"
+            $ws    = "${{ secrets.AZURE_WORKSPACE_NAME }}"
+
+            # Workaround: Lade das Deployment-Skript aus offiziellem Repo
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Azure/Azure-Sentinel/master/scripts/deploy/deploy.ps1" -OutFile "deploy.ps1"
+            
+            # Deployment
+            ./deploy.ps1 `
+              -ConfigurationPath $config `
+              -RepositoryPath $repo `
+              -SubscriptionId $sub `
+              -ResourceGroupName $rg `
+              -WorkspaceName $ws `
+              -ContinueOnError
+          azPSVersion: 'latest'
           enable-AzPSSession: true

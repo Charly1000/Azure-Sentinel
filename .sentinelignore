@@ -1,4 +1,38 @@
-package-lock.json
+# NodeJS-Projektdateien
 package.json
+package-lock.json
 tsconfig.json
+.eslintrc
+.prettierrc
+node_modules/
+
+# CI/CD und Deployment-Skripte
+scripts/
+.github/
+.azure-pipelines.yml
+
+# Dokumentation und Metadaten
 README.md
+docs/
+LICENSE
+SECURITY.md
+CONTRIBUTING.md
+CODEOWNERS
+
+# Typings / Tests / Validierungs-Tools
+cspell-dictionaries/
+cspell.config.json
+tests/
+utils/
+**/*.ts
+
+# Lokale VSCode-Einstellungen
+.vscode/
+
+# Sentinel Deployment-Tracking
+.sentinel/
+
+# Beispiel- oder Dummy-Daten (wenn du sie hast)
+Sample Data/
+Solutions/TestSolutions/
+Playbooks/TestPlaybook/
